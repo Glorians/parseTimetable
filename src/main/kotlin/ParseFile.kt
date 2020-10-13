@@ -1,75 +1,73 @@
 
-import model.Group
-import org.apache.commons.codec.binary.Hex
-import org.apache.poi.hssf.util.HSSFColor
 import org.apache.poi.ss.usermodel.*
-import org.apache.poi.xssf.usermodel.XSSFColor
+import utils.Checker
 import java.io.File
 import java.io.FileInputStream
-import kotlin.collections.ArrayList
 
 
-class ParseFile {
 
-    private val file = FileInputStream(File("timetable.xls"))
-    private lateinit var  workbook: Workbook
+class ParseFile(private var nameFile: String) {
+
+    private var OLD_FILE: Boolean = false
+    private lateinit var checker: Checker
+    private lateinit var file: FileInputStream
+    private lateinit var wb: Workbook
     private var countSheet = 0
-    private var sheets = ArrayList<Sheet>()
     private var listFreshInputData = arrayListOf<Any>()
-    private var mapColors = mutableMapOf<String, XSSFColor>()
 
-    private fun initColor(wb: Workbook) {
-        val codeColorBaseCSBC = "0000FF"
-        val codeColorSelectSubgroup = "00FFFF"
 
-        fun splitCodeColor (codeColor: String): CharArray {
-            return codeColor.toCharArray()
-        }
-
-        val byteRBGBase = Hex.decodeHex(splitCodeColor(codeColorBaseCSBC))
-        val byteRGBSelGroup = Hex.decodeHex(splitCodeColor(codeColorSelectSubgroup))
-
-        val colorBaseCSBC = XSSFColor(byteRBGBase, null)
-        val colorSelGroup = XSSFColor(byteRGBSelGroup, null)
-        mapColors["baseCSBC"] = colorBaseCSBC
-        mapColors["subgroup"] = colorSelGroup
+    private fun initBaseVariables() {
+        checker = Checker()
+        OLD_FILE = checker.checkOldFile(nameFile)
+        file = FileInputStream(File(nameFile))
+        wb = WorkbookFactory.create(file)
+        countSheet = wb.numberOfSheets
     }
 
 
     fun parse() {
-        workbook = WorkbookFactory.create(file) // Файл
-        countSheet = workbook.numberOfSheets // Количество страниц
-        initColor(workbook)
+        initBaseVariables()
 
-        // В массив добавлем страницы
-        for (sheet in workbook) {
-            sheets.add(sheet)
+        if (OLD_FILE){
+            parseOldFile()
+        } else {
+            parseNewFile()
         }
 
-        val sheet = workbook.getSheetAt(0)
-        for (i in 0..242) {
-            for (x in 0..5) {
-                val cell = sheet.getRow(i).getCell(x)
-                if(cell.cellType == CellType.STRING) {
-                    if (cell.cellStyle.fillBackgroundColor == mapColors["baseCSBC"])
-                    listFreshInputData.add(cell.stringCellValue)
-                }
-                if (cell.cellType == CellType.NUMERIC) {
-                    listFreshInputData.add(cell.numericCellValue)
-                }
+        val sheet = wb.getSheetAt(0)
+        cursorSheet(sheet)
+        file.close()
+    }
 
+    private fun parseOldFile() {}
+
+    private fun parseNewFile() {}
+
+    private fun exportCell(cell: Cell) {
+        if (cell.cellType == CellType.STRING) {
+            println(cell.stringCellValue)
+        }
+        if (cell.cellType == CellType.NUMERIC) {
+            println(cell.numericCellValue)
+        }
+    }
+
+    private fun cursorSheet(sheet: Sheet) {
+        val last = 242
+        for (i in 0..last) {
+            for (x in 0..5) {
+                try {
+                    val cell = sheet.getRow(i).getCell(x)
+                    checker.checkColor(cell)
+                }
+                catch (e: Exception) {
+                    System.err.println("Error")
+                }
+//                exportCell(cell)
             }
         }
-
-        for(item in listFreshInputData) {
-            print("$item ")
-        }
-
-        val group = Group(listFreshInputData[0].toString())
-
-
-
     }
+
 }
 
 
