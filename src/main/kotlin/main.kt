@@ -1,8 +1,6 @@
 fun main(args: Array<String>) {
 
-    val nameFile: String = "mytimetable.xls"
+    val nameFile: String = "timetable.xls"
     val parseFile = ParseFile(nameFile)
     parseFile.parse()
-    val writeFile = WriteExelFile()
-//    writeFile.testing()
 }

@@ -1,9 +1,7 @@
-
 import org.apache.poi.ss.usermodel.*
 import utils.Checker
 import java.io.File
 import java.io.FileInputStream
-
 
 
 class ParseFile(private var nameFile: String) {
@@ -13,7 +11,6 @@ class ParseFile(private var nameFile: String) {
     private lateinit var file: FileInputStream
     private lateinit var wb: Workbook
     private var countSheet = 0
-    private var listFreshInputData = arrayListOf<Any>()
 
 
     private fun initBaseVariables() {
@@ -28,7 +25,7 @@ class ParseFile(private var nameFile: String) {
     fun parse() {
         initBaseVariables()
 
-        if (OLD_FILE){
+        if (OLD_FILE) {
             parseOldFile()
         } else {
             parseNewFile()
@@ -43,35 +40,36 @@ class ParseFile(private var nameFile: String) {
 
     private fun parseNewFile() {}
 
-    private fun exportCell(cell: Cell) {
-        if (cell.cellType == CellType.STRING) {
-            println(cell.stringCellValue)
-        }
-        if (cell.cellType == CellType.NUMERIC) {
-            println(cell.numericCellValue)
+    private fun cursorSheet(sheet: Sheet) {
+        val listGroups = checker.checkAllGroups(sheet)
+        var nextGroup = 0
+
+        for (i in 0..listGroups.size) {
+            cursorGroups(sheet, nextGroup)
+            nextGroup += 5
         }
     }
 
-    private fun cursorSheet(sheet: Sheet) {
+    private fun cursorGroups(sheet: Sheet, nextGroup: Int) {
         val last = 242
         for (i in 0..last) {
-            for (x in 0..5) {
-                try {
-                    val cell = sheet.getRow(i).getCell(x)
-                    checker.checkColor(cell)
-                }
-                catch (e: Exception) {
-                    System.err.println("Error")
-                }
-//                exportCell(cell)
+            for (x in nextGroup..nextGroup + 5) {
+                val cell = sheet.getRow(i).getCell(x)
+                exportCell(cell)
             }
         }
     }
 
+    private fun exportCell(cell: Cell) {
+        if (cell.cellType == CellType.STRING || cell.cellType == CellType.NUMERIC) {
+            when (checker.checkColor(cell)) {
+                "blue" -> blue()
+                "aqua" -> aqua()
+                "" -> etc()
+            }
+        }
+    }
 }
-
-
-
 
 
 
