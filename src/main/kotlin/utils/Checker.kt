@@ -1,12 +1,9 @@
 package utils
 
-import org.apache.poi.ss.usermodel.Cell
-import org.apache.poi.ss.usermodel.CellType
-import org.apache.poi.ss.usermodel.IndexedColors
-import org.apache.poi.ss.usermodel.Sheet
+import org.apache.poi.ss.usermodel.*
 
 
-class Checker {
+open class Checker {
 
     fun checkOldFile(nameFile: String): Boolean {
         val arrayChars = nameFile.toCharArray()
@@ -20,39 +17,58 @@ class Checker {
     fun checkColor(cell: Cell): String {
         val cellColor = cell.cellStyle.fillForegroundColor
         val colors = arrayListOf(
-                IndexedColors.BLUE.index, IndexedColors.TURQUOISE.index
+                IndexedColors.BLUE.index, IndexedColors.TURQUOISE.index,
+                IndexedColors.GREY_25_PERCENT.index
         )
-        if (cell.cellType == CellType.STRING) {
+
+
+        if (cell.cellType == CellType.STRING || cell.cellType == CellType.NUMERIC) {
             when (cellColor) {
                 colors[0] -> {
-                    println("${MyColor().ANSI_BLUE}${cell.stringCellValue}")
-                    print(MyColor().ANSI_RESET)
                     return "blue"
                 }
                 colors[1] -> {
-                    println("${MyColor().ANSI_CYAN}${cell.stringCellValue}")
-                    print(MyColor().ANSI_RESET)
                     return "aqua"
                 }
-                else -> {
-
-                    if (cell.stringCellValue != "" || cell.stringCellValue != " ") {
-                        println("${cell.stringCellValue} ${MyColor().ANSI_RESET}")
-                    }
-                    return ""
+                colors[2] -> {
+                    return "grey"
                 }
             }
         }
         return ""
     }
 
-    fun checkAllGroups(sheet: Sheet): MutableList<String> {
+    fun checkAllColumnGroups(sheet: Sheet): Int {
         val listGroups = mutableListOf<String>()
         for (i in 0..1000) {
             try {
                 val cell = sheet.getRow(0).getCell(i)
-                if (cell.stringCellValue != "") {
-                    listGroups.add(cell.stringCellValue)
+                val str = cell.stringCellValue
+                if (str != "") {
+                    listGroups.add(str)
+                }
+            }
+            catch (e: Exception) {
+                break
+            }
+        }
+        return listGroups.size
+    }
+
+    fun checkAllGroups(sheet: Sheet): MutableList<String> {
+        val listGroups = mutableListOf<String>()
+
+        // We go through all the top cells in search of group names
+        for (i in 0..1000) {
+            try {
+                val cell = sheet.getRow(0).getCell(i)
+                val str = cell.stringCellValue
+                if (str != "" && !checkDoubleGroup(str)) {
+                    listGroups.add(str)
+                }
+                // If more than one group
+                else {
+                    listGroups.addAll(fixDoubleGroup(str))
                 }
             }
             catch (e: Exception) {
@@ -61,11 +77,32 @@ class Checker {
         }
         return listGroups
     }
-    fun checkGroup(cell: Cell, listGroup: ArrayList<String>): Boolean{
+
+    fun checkGroup(cell: Cell, listGroup: MutableList<String>): Boolean{
         val group = cell.stringCellValue
         for (i in 0..listGroup.size) {
             return group == listGroup[i]
         }
         return false
     }
+
+
+    private fun fixDoubleGroup(str: String): List<String> {
+        if (checkDoubleGroup(str)) {
+            return str.split(" ")
+        }
+        return emptyList()
+    }
+
+    private fun checkDoubleGroup(str: String): Boolean {
+        val arrayGroup = str.split(" ")
+        return arrayGroup.size == 2
+    }
+
+    fun checkBottomBorder(cell: Cell): Boolean {
+        return cell.cellStyle.borderBottom == BorderStyle.MEDIUM_DASHED
+    }
+
+
+
 }

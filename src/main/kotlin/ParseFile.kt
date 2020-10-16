@@ -1,21 +1,27 @@
 import org.apache.poi.ss.usermodel.*
 import utils.Checker
+import utils.Debugger
+import utils.MyColor
 import java.io.File
 import java.io.FileInputStream
 
 
 class ParseFile(private var nameFile: String) {
 
-    private var OLD_FILE: Boolean = false
+    private var oldFile: Boolean = false
     private lateinit var checker: Checker
     private lateinit var file: FileInputStream
     private lateinit var wb: Workbook
     private var countSheet = 0
+    private var countColumn = 0
+    private val debugger = Debugger()
+    private lateinit var listGroups: MutableList<String>
+    private val distributor = Distributor()
 
 
     private fun initBaseVariables() {
         checker = Checker()
-        OLD_FILE = checker.checkOldFile(nameFile)
+        oldFile = checker.checkOldFile(nameFile)
         file = FileInputStream(File(nameFile))
         wb = WorkbookFactory.create(file)
         countSheet = wb.numberOfSheets
@@ -25,7 +31,7 @@ class ParseFile(private var nameFile: String) {
     fun parse() {
         initBaseVariables()
 
-        if (OLD_FILE) {
+        if (oldFile) {
             parseOldFile()
         } else {
             parseNewFile()
@@ -41,10 +47,11 @@ class ParseFile(private var nameFile: String) {
     private fun parseNewFile() {}
 
     private fun cursorSheet(sheet: Sheet) {
-        val listGroups = checker.checkAllGroups(sheet)
+        listGroups = checker.checkAllGroups(sheet)
+        countColumn = checker.checkAllColumnGroups(sheet)
         var nextGroup = 0
 
-        for (i in 0..listGroups.size) {
+        for (i in 0..countColumn) {
             cursorGroups(sheet, nextGroup)
             nextGroup += 5
         }
@@ -56,17 +63,14 @@ class ParseFile(private var nameFile: String) {
             for (x in nextGroup..nextGroup + 5) {
                 val cell = sheet.getRow(i).getCell(x)
                 exportCell(cell)
+                debugger.printConsoleAll(cell)
             }
         }
     }
 
-    private fun exportCell(cell: Cell) {
-        if (cell.cellType == CellType.STRING || cell.cellType == CellType.NUMERIC) {
-            when (checker.checkColor(cell)) {
-                "blue" -> blue()
-                "aqua" -> aqua()
-                "" -> etc()
-            }
+    private fun exportCell(cell: Cell?) {
+        if (cell?.cellType == CellType.STRING || cell?.cellType == CellType.NUMERIC) {
+            distributor.freshData(cell, listGroups)
         }
     }
 }
