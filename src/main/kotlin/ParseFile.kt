@@ -1,22 +1,18 @@
 import org.apache.poi.ss.usermodel.*
 import utils.Checker
-import utils.Debugger
-import utils.MyColor
 import java.io.File
 import java.io.FileInputStream
 
 
 class ParseFile(private var nameFile: String) {
 
-    private var oldFile: Boolean = false
-    private lateinit var checker: Checker
-    private lateinit var file: FileInputStream
-    private lateinit var wb: Workbook
+    private var oldFile: Boolean = false // check olfFile
+    private lateinit var checker: Checker // object checked
+    private lateinit var file: FileInputStream // just file
+    private lateinit var wb: Workbook // workbook
     private var countSheet = 0
     private var countColumn = 0
-    private val debugger = Debugger()
     private lateinit var listGroups: MutableList<String>
-    private val distributor = Distributor()
 
 
     private fun initBaseVariables() {
@@ -49,28 +45,43 @@ class ParseFile(private var nameFile: String) {
     private fun cursorSheet(sheet: Sheet) {
         listGroups = checker.checkAllGroups(sheet)
         countColumn = checker.checkAllColumnGroups(sheet)
-        var nextGroup = 0
+        var startGroup = 1
+        var startSubject = 3
 
         for (i in 0..countColumn) {
-            cursorGroups(sheet, nextGroup)
-            nextGroup += 5
+            cursorGroups(sheet, startGroup)
+            startGroup += 4
         }
     }
 
-    private fun cursorGroups(sheet: Sheet, nextGroup: Int) {
-        val last = 242
-        for (i in 0..last) {
-            for (x in nextGroup..nextGroup + 5) {
-                val cell = sheet.getRow(i).getCell(x)
-                exportCell(cell)
-                debugger.printConsoleAll(cell)
+    private fun cursorGroups(sheet: Sheet, startGroup: Int) {
+        val lastTableVertical = 242
+
+        //Vertical
+        for (height in 0..lastTableVertical) {
+
+            //Horizontal
+            cursorSubject(sheet, height, startGroup)
+        }
+    }
+
+    private fun cursorSubject(sheet: Sheet,height: Int, width: Int) {
+        val range = width + 3
+
+        for (x in width..range) {
+            val cell = sheet.getRow(height).getCell(x)
+            if (cell.cellType == CellType.STRING) {
+                println(cell)
+            }
+            if (cell.cellType == CellType.NUMERIC) {
+                println(cell)
             }
         }
     }
 
     private fun exportCell(cell: Cell?) {
         if (cell?.cellType == CellType.STRING || cell?.cellType == CellType.NUMERIC) {
-            distributor.freshData(cell, listGroups)
+
         }
     }
 }

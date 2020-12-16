@@ -103,6 +103,4 @@ open class Checker {
         return cell.cellStyle.borderBottom == BorderStyle.MEDIUM_DASHED
     }
 
-
-
 }
