@@ -27,62 +27,23 @@ class ParseFile(private var nameFile: String) {
     fun parse() {
         initBaseVariables()
 
-        if (oldFile) {
-            parseOldFile()
-        } else {
-            parseNewFile()
-        }
-
         val sheet = wb.getSheetAt(0)
         cursorSheet(sheet)
         file.close()
     }
 
-    private fun parseOldFile() {}
-
-    private fun parseNewFile() {}
-
     private fun cursorSheet(sheet: Sheet) {
         listGroups = checker.checkAllGroups(sheet)
         countColumn = checker.checkAllColumnGroups(sheet)
-        var startGroup = 1
-        var startSubject = 3
+        val cursor = Cursor(sheet)
+        var startPositionGroup = 1 // Start Group
 
-        for (i in 0..countColumn) {
-            cursorGroups(sheet, startGroup)
-            startGroup += 4
+        // Iterator Groups
+        for (i in 0 until countColumn) {
+            cursor.selectGroup(startPositionGroup)
+            startPositionGroup += 6
         }
-    }
 
-    private fun cursorGroups(sheet: Sheet, startGroup: Int) {
-        val lastTableVertical = 242
-
-        //Vertical
-        for (height in 0..lastTableVertical) {
-
-            //Horizontal
-            cursorSubject(sheet, height, startGroup)
-        }
-    }
-
-    private fun cursorSubject(sheet: Sheet,height: Int, width: Int) {
-        val range = width + 3
-
-        for (x in width..range) {
-            val cell = sheet.getRow(height).getCell(x)
-            if (cell.cellType == CellType.STRING) {
-                println(cell)
-            }
-            if (cell.cellType == CellType.NUMERIC) {
-                println(cell)
-            }
-        }
-    }
-
-    private fun exportCell(cell: Cell?) {
-        if (cell?.cellType == CellType.STRING || cell?.cellType == CellType.NUMERIC) {
-
-        }
     }
 }
 
