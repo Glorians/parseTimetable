@@ -103,4 +103,17 @@ open class Checker {
         return cell.cellStyle.borderBottom == BorderStyle.MEDIUM_DASHED
     }
 
+    fun checkMergedCell(sheet: Sheet, row: Int, column: Int): Int? {
+        val numberOfMergedRegions = sheet.numMergedRegions
+
+        for (i in 0..numberOfMergedRegions) {
+            val mergedCell = sheet.getMergedRegion(i)
+
+            if (mergedCell.isInRange(row, column)) {
+                return i
+            }
+        }
+        return null
+    }
+
 }

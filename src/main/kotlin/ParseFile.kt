@@ -35,15 +35,15 @@ class ParseFile(private var nameFile: String) {
     private fun cursorSheet(sheet: Sheet) {
         listGroups = checker.checkAllGroups(sheet)
         countColumn = checker.checkAllColumnGroups(sheet)
-        val cursor = Cursor(sheet)
+
         var startPositionGroup = 1 // Start Group
 
         // Iterator Groups
         for (i in 0 until countColumn) {
+            val cursor = Cursor(sheet)
             cursor.selectGroup(startPositionGroup)
             startPositionGroup += 6
         }
-
     }
 }
 
