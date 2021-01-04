@@ -14,6 +14,16 @@ open class Checker {
         return false
     }
 
+    fun checkSubgroup(cell: Cell): Boolean {
+        if (cell.cellType == CellType.STRING) {
+            val value = cell.stringCellValue
+            if (value.length == 1 && checkColor(cell) == "aqua") {
+                return true
+            }
+        }
+        return false
+    }
+
     fun checkColor(cell: Cell): String {
         val cellColor = cell.cellStyle.fillForegroundColor
         val colors = arrayListOf(

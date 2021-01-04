@@ -36,7 +36,7 @@ class ParseFile(private var nameFile: String) {
         listGroups = checker.checkAllGroups(sheet)
         countColumn = checker.checkAllColumnGroups(sheet)
 
-        var startPositionGroup = 1 // Start Group
+        var startPositionGroup = 2 // Start Group
 
         // Iterator Groups
         for (i in 0 until countColumn) {
