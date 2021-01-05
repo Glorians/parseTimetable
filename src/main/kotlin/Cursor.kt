@@ -14,7 +14,7 @@ class Cursor(private val sheet: Sheet) {
     private var endPositionSubject = 7 // Vertical
 
     private val positionNameGroup = 0 // Horizontal
-    private val endTableVertical = 242 // Vertical
+    private val endTableVertical = 242 // Vertical 5 DAY
     private val sizeGroup = 3 // Horizontal
     private val sizeDay = 8 // Vertical
     private val sizeSubject = 5 // Vertical
@@ -78,13 +78,18 @@ class Cursor(private val sheet: Sheet) {
                 }
             }
             endPositionSubject = startPositionSubject + sizeSubject // End position next subject
+
         }
 
         fun subgroupWork() {
             var startHorizontalSubject = startPositionGroup
             var endHorizontalSubject = endPositionGroup - 2
+            var countLineSubject = 0
             val sizeSubgroup = 2
             for (column in 1..2) {
+                if (column == 2) {
+                    println("|")
+                }
                 for (lineSubject in startPositionSubject..endPositionSubject) {
                     for (width in startHorizontalSubject..endHorizontalSubject) {
                         val value = getValueCell(lineSubject, width)
@@ -92,29 +97,100 @@ class Cursor(private val sheet: Sheet) {
                             println(value)
                         }
                     }
+                    countLineSubject++
                 }
-                println("___________")
+                startHorizontalSubject += sizeSubgroup
+                endHorizontalSubject += sizeSubgroup
+            }
+            startPositionSubject += countLineSubject / 2
+            endPositionSubject = startPositionSubject + sizeSubject
+        }
+
+        fun defaultWorkWithPrimaryWeek() {
+            var startVerticalSubject = startPositionSubject
+            var endVerticalSubject = endPositionSubject-3
+            for (primary in 1..2) {
+                for (lineSubject in startVerticalSubject..endVerticalSubject) {
+                    for (width in startPositionGroup..endPositionGroup) {
+                        val value = getValueCell(lineSubject, width)
+                        if (value != null) {
+                            print("$value ")
+                        }
+                    }
+
+                    startPositionSubject++
+                    if (lineSubject >= endTableVertical) {
+                        break
+                    }
+                }
+                if (primary == 1) {
+                    println("\n_____________")
+                }
+
+                startVerticalSubject = endVerticalSubject+1
+                endVerticalSubject += 2
+            }
+            println("\n")
+            endPositionSubject = startPositionSubject + sizeSubject // End position next subject
+        }
+
+        fun subgroupWorkWithPrimaryWeek() {
+            var startHorizontalSubject = startPositionGroup
+            var endHorizontalSubject = endPositionGroup - 2
+            val sizeSubgroup = 2
+            var countLineSubject = 0
+            for (column in 1..2) {
+                if (column == 2) {
+                    println("|")
+                }
+                var startVerticalSubject = startPositionSubject
+                var endVerticalSubject = endPositionSubject - 3
+
+                for (primary in 1..2) {
+                    for (lineSubject in startVerticalSubject..endVerticalSubject) {
+                        for (width in startHorizontalSubject..endHorizontalSubject) {
+                            val value = getValueCell(lineSubject, width)
+                            if (value != null) {
+                                println(value)
+                            }
+                        }
+                        countLineSubject++
+                    }
+                    if (primary == 1) {
+                        println("\n_____________")
+                    }
+
+                    startVerticalSubject = endVerticalSubject + 1
+                    endVerticalSubject += 3
+                }
+
                 startHorizontalSubject += sizeSubgroup
                 endHorizontalSubject += sizeSubgroup
             }
 
+            startPositionSubject += countLineSubject / 2
+            endPositionSubject = startPositionSubject + sizeSubject
         }
 
-        fun defaultWorkWithPrimaryWeek() {
-
-        }
-
-        fun subgroupWorkWithPrimaryWeek() {
-
+        // If there is a subgroups & primary week
+        if (analyzer.checkSubgroupsWithPrimaryWeek()) {
+            subgroupWorkWithPrimaryWeek()
         }
 
         // If there is a subgroups
-        if (analyzer.checkSubGroups()) {
+        else if (analyzer.checkSubgroups()) {
             subgroupWork()
         }
+
+        // If there is a primary week
+        else if (analyzer.checkPrimaryWeek()) {
+            defaultWorkWithPrimaryWeek()
+        }
+
         else {
             defaultWork()
         }
+
 
     }
 

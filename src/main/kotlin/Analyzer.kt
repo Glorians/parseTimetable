@@ -11,7 +11,7 @@ class Analyzer(private val arrayCells: ArrayList<Cell>) {
         checkPrimaryWeek()
     }
 
-    fun checkSubGroups(): Boolean {
+    fun checkSubgroups(): Boolean {
         val cellOne = arrayCells[0]
         if (cellOne.cellType == CellType.STRING) {
             if (checker.checkSubgroup(cellOne)) {
@@ -21,10 +21,17 @@ class Analyzer(private val arrayCells: ArrayList<Cell>) {
         return false
     }
 
-    private fun checkPrimaryWeek() {
+    fun checkPrimaryWeek(): Boolean {
         for (cell in arrayCells) {
-            checkPrimaryWeekStatus = checker.checkBottomBorder(cell)
+            if (checker.checkBottomBorder(cell)) {
+                return true
+            }
         }
+        return false
+    }
+
+    fun checkSubgroupsWithPrimaryWeek(): Boolean {
+        return checkSubgroups() && checkPrimaryWeek()
     }
 
     private fun getValue(cell: Cell): Any? {
