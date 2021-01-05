@@ -1,13 +1,13 @@
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.usermodel.Sheet
-import org.apache.poi.ss.util.CellRangeAddress
 import utils.Checker
 import utils.MyColor
 
-class Cursor(private val sheet: Sheet) {
+class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
 
     private val countDay = 5
+    private var nameGroup: String? = null
     private var startPositionGroup = 0 // Horizontal
     private var endPositionGroup = 0 // Horizontal
     private var startPositionSubject = 2 // Vertical
@@ -21,76 +21,66 @@ class Cursor(private val sheet: Sheet) {
 
     private val checker = Checker()
 
-
+    // Determines the type of subject
     private fun scanSubject(): Analyzer {
         val arrayCells = ArrayList<Cell>() // Data subject CELLS
-        var startVerticalSubject = startPositionSubject
-        val endVerticalSubject = endPositionSubject
-        val startHorizontalSubject = startPositionGroup
-        val endHorizontalSubject = endPositionGroup
+        var startVerticalSubject = startPositionSubject // Vertical
+        val endVerticalSubject = endPositionSubject // Vertical
+        val startHorizontalSubject = startPositionGroup // Horizontal
+        val endHorizontalSubject = endPositionGroup // Horizontal
 
         //Run along the line subject VERTICAL
         for (lineSubject in startVerticalSubject..endVerticalSubject) {
-
             //Run along the column subject Horizontal
             for (width in startHorizontalSubject..endHorizontalSubject) {
-
                 // Added cells in array
                 val cell = sheet.getRow(lineSubject).getCell(width)
                 arrayCells.add(cell)
             }
-
             startVerticalSubject++
 
-            //Stop scan
-            if (lineSubject >= endTableVertical) {
-                break
-            }
         }
         return Analyzer(arrayCells)
     }
 
     private fun selectSubject(numSubject: Int) {
 
-        val analyzer = scanSubject()
+        val analyzer = scanSubject() // the object stores information about the subject
 
+        // If the most common subject, without subgroups and prime weeks
         fun defaultWork() {
             //Run along the line subject VERTICAL
             for (lineSubject in startPositionSubject..endPositionSubject) {
-
                 //Run along the column subject Horizontal
                 for (width in startPositionGroup..endPositionGroup) {
-
-                    //Crutch :)
-                    if (lineSubject >= endTableVertical) {
-                        break
-                    }
-
+                    // Printing values
                     val value = getValueCell(lineSubject, width)
                     if (value != null) {
                         println(value)
                     }
                 }
-
                 startPositionSubject++
-                if (lineSubject >= endTableVertical) {
-                    break
-                }
             }
-            endPositionSubject = startPositionSubject + sizeSubject // End position next subject
-
+            endPositionSubject = startPositionSubject + sizeSubject // End position of the next subject
         }
 
+        // If the subject has subgroups
         fun subgroupWork() {
-            var startHorizontalSubject = startPositionGroup
-            var endHorizontalSubject = endPositionGroup - 2
-            var countLineSubject = 0
+            var startHorizontalSubject = startPositionGroup // Horizontal
+            var endHorizontalSubject = endPositionGroup - 2 // Horizontal
+            var countLineSubject = 0 // Counter
             val sizeSubgroup = 2
+
+            // Go through two subgroups
             for (column in 1..2) {
+
+                // Printing
                 if (column == 2) {
                     println("|")
                 }
+                // Run along the line subject VERTICAL
                 for (lineSubject in startPositionSubject..endPositionSubject) {
+                    //Run along the column subject Horizontal
                     for (width in startHorizontalSubject..endHorizontalSubject) {
                         val value = getValueCell(lineSubject, width)
                         if (value != null) {
@@ -99,56 +89,74 @@ class Cursor(private val sheet: Sheet) {
                     }
                     countLineSubject++
                 }
+                // Transition to the next subgroup
                 startHorizontalSubject += sizeSubgroup
                 endHorizontalSubject += sizeSubgroup
             }
+            // Transition to the next subject
             startPositionSubject += countLineSubject / 2
             endPositionSubject = startPositionSubject + sizeSubject
         }
 
-        fun defaultWorkWithPrimaryWeek() {
-            var startVerticalSubject = startPositionSubject
-            var endVerticalSubject = endPositionSubject-3
-            for (primary in 1..2) {
+        // If subject with parity weeks
+        fun defaultWorkWithParityWeek() {
+            var startVerticalSubject = startPositionSubject // Vertical
+            var endVerticalSubject = endPositionSubject-3 // Vertical
+
+            // We go along parity weeks
+            for (parity in 1..2) {
+                // Run along the line subject VERTICAL
                 for (lineSubject in startVerticalSubject..endVerticalSubject) {
+                    //Run along the column subject Horizontal
                     for (width in startPositionGroup..endPositionGroup) {
+                        // Printing values
                         val value = getValueCell(lineSubject, width)
                         if (value != null) {
                             print("$value ")
                         }
                     }
-
                     startPositionSubject++
-                    if (lineSubject >= endTableVertical) {
-                        break
-                    }
                 }
-                if (primary == 1) {
+                // Printing border
+                if (parity == 1) {
                     println("\n_____________")
                 }
-
-                startVerticalSubject = endVerticalSubject+1
+                // Next week
+                startVerticalSubject = endVerticalSubject + 1
                 endVerticalSubject += 2
             }
             println("\n")
             endPositionSubject = startPositionSubject + sizeSubject // End position next subject
         }
 
-        fun subgroupWorkWithPrimaryWeek() {
-            var startHorizontalSubject = startPositionGroup
-            var endHorizontalSubject = endPositionGroup - 2
+        // If the subject has both subgroups and parity weeks
+        fun subgroupWorkWithParityWeek() {
+
+            // Data for subgroup
+            var startHorizontalSubject = startPositionGroup // Horizontal
+            var endHorizontalSubject = endPositionGroup - 2 // Horizontal
             val sizeSubgroup = 2
-            var countLineSubject = 0
+            var countLineSubject = 0 // Counter
+
+            // Go through two subgroups
             for (column in 1..2) {
+
+                // Printing
                 if (column == 2) {
                     println("|")
                 }
+
+                // Data for parity weeks
                 var startVerticalSubject = startPositionSubject
                 var endVerticalSubject = endPositionSubject - 3
 
-                for (primary in 1..2) {
+                // Inside the subgroup, walk along parity weeks
+                for (parity in 1..2) {
+                    // Run along the line subject VERTICAL
                     for (lineSubject in startVerticalSubject..endVerticalSubject) {
+                        //Run along the column subject Horizontal
                         for (width in startHorizontalSubject..endHorizontalSubject) {
+                            // Printing values
                             val value = getValueCell(lineSubject, width)
                             if (value != null) {
                                 println(value)
@@ -156,58 +164,67 @@ class Cursor(private val sheet: Sheet) {
                         }
                         countLineSubject++
                     }
-                    if (primary == 1) {
+                    // Printing border
+                    if (parity == 1) {
                         println("\n_____________")
                     }
 
+                    // Next week
                     startVerticalSubject = endVerticalSubject + 1
                     endVerticalSubject += 3
                 }
-
+                // Next subgroup
                 startHorizontalSubject += sizeSubgroup
                 endHorizontalSubject += sizeSubgroup
             }
-
+            // Next subject
             startPositionSubject += countLineSubject / 2
             endPositionSubject = startPositionSubject + sizeSubject
         }
 
-        // If there is a subgroups & primary week
-        if (analyzer.checkSubgroupsWithPrimaryWeek()) {
-            subgroupWorkWithPrimaryWeek()
+        when {
+            // If there is a subgroups & parity weeks
+            analyzer.checkSubgroupsWithParityWeek() -> {
+                subgroupWorkWithParityWeek()
+            }
+
+            // If there is a subgroups
+            analyzer.checkSubgroups() -> {
+                subgroupWork()
+            }
+
+            // If there is a parity weeks
+            analyzer.checkParityWeek() -> {
+                defaultWorkWithParityWeek()
+            }
+            else -> {
+                defaultWork()
+            }
         }
-
-        // If there is a subgroups
-        else if (analyzer.checkSubgroups()) {
-            subgroupWork()
-        }
-
-        // If there is a primary week
-        else if (analyzer.checkPrimaryWeek()) {
-            defaultWorkWithPrimaryWeek()
-        }
-
-        else {
-            defaultWork()
-        }
-
-
     }
 
     private fun selectDay(numDay: Int) {
         for (numSubject in 1..sizeDay) {
             println("${MyColor.ANSI_PURPLE}Subject #$numSubject ${MyColor.ANSI_RESET}")
-            selectSubject(numSubject)
+            selectSubject(numSubject) // SELECT SUBJECT
         }
     }
 
     fun selectGroup(startPositionGroup: Int) {
+        // Work area initialization
         this.startPositionGroup = startPositionGroup
         endPositionGroup = startPositionGroup + sizeGroup
-        println(MyColor.ANSI_GREEN + getNameGroup(startPositionGroup) + MyColor.ANSI_RESET)
-        for (numDay in 1.. countDay) {
-            println("${MyColor.ANSI_BLUE}Day #$numDay ${MyColor.ANSI_RESET}")
-            selectDay(numDay)
+
+        nameGroup = getNameGroup(startPositionGroup)
+        println(MyColor.ANSI_GREEN + nameGroup + MyColor.ANSI_RESET)
+
+        // Start process
+        if (nameGroup != null) {
+            assembler
+            for (numDay in 1.. countDay) {
+                println("${MyColor.ANSI_BLUE}Day #$numDay ${MyColor.ANSI_RESET}")
+                selectDay(numDay) // SELECT DAY
+            }
         }
     }
 
@@ -226,21 +243,11 @@ class Cursor(private val sheet: Sheet) {
         if (cell.cellType == CellType.NUMERIC) {
             return cell.numericCellValue
         }
-
         return null
     }
 
-    private fun getValueCell(mergedCells: CellRangeAddress): Any? {
-        val cell = sheet.getRow(mergedCells.firstRow).getCell(mergedCells.firstColumn)
-
-        if (cell.cellType == CellType.STRING) {
-            return cell.stringCellValue
-        }
-        if (cell.cellType == CellType.NUMERIC) {
-            return cell.numericCellValue
-        }
-        return null
+    fun getAssembler(): Assembler {
+        return assembler
     }
-
 
 }

@@ -1,3 +1,5 @@
+import model.Faculty
+import model.Group
 import org.apache.poi.ss.usermodel.*
 import utils.Checker
 import java.io.File
@@ -13,6 +15,8 @@ class ParseFile(private var nameFile: String) {
     private var countSheet = 0
     private var countColumn = 0
     private lateinit var listGroups: MutableList<String>
+    private lateinit var listFaculty: MutableMap<String, MutableMap<String, Group>>
+    private lateinit var listNamesSheets: MutableList<String>
 
 
     private fun initBaseVariables() {
@@ -21,29 +25,42 @@ class ParseFile(private var nameFile: String) {
         file = FileInputStream(File(nameFile))
         wb = WorkbookFactory.create(file)
         countSheet = wb.numberOfSheets
+        listNamesSheets = mutableListOf()
     }
-
 
     fun parse() {
         initBaseVariables()
+
+        for (sheet in wb.allNames) {
+            val name = sheet.sheetName
+            if (name != "" && name.length > 2) {
+                listNamesSheets.add(name)
+                print("[${sheet.sheetName}] ")
+            }
+        }
+
+        println("COUNT: ${wb.numberOfSheets}")
+
 
         val sheet = wb.getSheetAt(0)
         cursorSheet(sheet)
         file.close()
     }
 
-    private fun cursorSheet(sheet: Sheet) {
+    private fun cursorSheet(sheet: Sheet): MutableMap<String, Group>{
         listGroups = checker.checkAllGroups(sheet)
         countColumn = checker.checkAllColumnGroups(sheet)
 
         var startPositionGroup = 2 // Start Group
-
+        var assembler = Assembler()
         // Iterator Groups
         for (i in 0 until countColumn) {
-            val cursor = Cursor(sheet)
+            val cursor = Cursor(sheet, assembler)
             cursor.selectGroup(startPositionGroup)
             startPositionGroup += 6
+            assembler = cursor.getAssembler()
         }
+        return assembler.getListGroups()
     }
 }
 
