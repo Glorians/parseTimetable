@@ -18,6 +18,14 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
     private val sizeGroup = 3 // Horizontal
     private val sizeDay = 8 // Vertical
     private val sizeSubject = 5 // Vertical
+    private val listNameDay = mutableMapOf<Int, String>(
+        1 to "Понелілок",
+        2 to "Вівторок",
+        3 to "Середа",
+        4 to "Четверг",
+        5 to "Пятниця",
+        6 to "Субота"
+    )
 
     private val checker = Checker()
 
@@ -56,7 +64,7 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
                     // Printing values
                     val value = getValueCell(lineSubject, width)
                     if (value != null) {
-                        println(value)
+                        println("$value ")
                     }
                 }
                 startPositionSubject++
@@ -101,7 +109,7 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
         // If subject with parity weeks
         fun defaultWorkWithParityWeek() {
             var startVerticalSubject = startPositionSubject // Vertical
-            var endVerticalSubject = endPositionSubject-3 // Vertical
+            var endVerticalSubject = endPositionSubject - 3 // Vertical
 
             // We go along parity weeks
             for (parity in 1..2) {
@@ -112,20 +120,19 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
                         // Printing values
                         val value = getValueCell(lineSubject, width)
                         if (value != null) {
-                            print("$value ")
+                            println("$value ")
                         }
                     }
                     startPositionSubject++
                 }
                 // Printing border
                 if (parity == 1) {
-                    println("\n_____________")
+                    println("_____________")
                 }
                 // Next week
                 startVerticalSubject = endVerticalSubject + 1
-                endVerticalSubject += 2
+                endVerticalSubject += 3
             }
-            println("\n")
             endPositionSubject = startPositionSubject + sizeSubject // End position next subject
         }
 
@@ -205,7 +212,7 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
 
     private fun selectDay(numDay: Int) {
         for (numSubject in 1..sizeDay) {
-            println("${MyColor.ANSI_PURPLE}Subject #$numSubject ${MyColor.ANSI_RESET}")
+            println("${MyColor.ANSI_PURPLE}Пара #$numSubject ${MyColor.ANSI_RESET}")
             selectSubject(numSubject) // SELECT SUBJECT
         }
     }
@@ -216,13 +223,13 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
         endPositionGroup = startPositionGroup + sizeGroup
 
         nameGroup = getNameGroup(startPositionGroup)
-        println(MyColor.ANSI_GREEN + nameGroup + MyColor.ANSI_RESET)
+        println(MyColor.ANSI_GREEN + "Группа $nameGroup" + MyColor.ANSI_RESET)
 
         // Start process
         if (nameGroup != null) {
             assembler
             for (numDay in 1.. countDay) {
-                println("${MyColor.ANSI_BLUE}Day #$numDay ${MyColor.ANSI_RESET}")
+                println(MyColor.ANSI_BLUE + listNameDay[numDay] + MyColor.ANSI_RESET)
                 selectDay(numDay) // SELECT DAY
             }
         }
