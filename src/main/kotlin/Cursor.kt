@@ -227,8 +227,9 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
 
         // Start process
         if (nameGroup != null) {
-            assembler
+            assembler.createGroup(nameGroup!!)
             for (numDay in 1.. countDay) {
+                assembler.createDay(listNameDay[numDay]!!)
                 println(MyColor.ANSI_BLUE + listNameDay[numDay] + MyColor.ANSI_RESET)
                 selectDay(numDay) // SELECT DAY
             }
