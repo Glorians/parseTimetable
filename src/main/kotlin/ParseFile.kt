@@ -1,22 +1,22 @@
+import model.Faculty
+import model.Group
 import org.apache.poi.ss.usermodel.*
 import utils.Checker
-import utils.Debugger
-import utils.MyColor
 import java.io.File
 import java.io.FileInputStream
 
 
 class ParseFile(private var nameFile: String) {
 
-    private var oldFile: Boolean = false
-    private lateinit var checker: Checker
-    private lateinit var file: FileInputStream
-    private lateinit var wb: Workbook
+    private var oldFile: Boolean = false // check olfFile
+    private lateinit var checker: Checker // object checked
+    private lateinit var file: FileInputStream // just file
+    private lateinit var wb: Workbook // workbook
     private var countSheet = 0
     private var countColumn = 0
-    private val debugger = Debugger()
     private lateinit var listGroups: MutableList<String>
-    private val distributor = Distributor()
+    private lateinit var listFaculty: MutableMap<String, MutableMap<String, Group>>
+    private lateinit var listNamesSheets: MutableList<String>
 
 
     private fun initBaseVariables() {
@@ -25,53 +25,42 @@ class ParseFile(private var nameFile: String) {
         file = FileInputStream(File(nameFile))
         wb = WorkbookFactory.create(file)
         countSheet = wb.numberOfSheets
+        listNamesSheets = mutableListOf()
     }
-
 
     fun parse() {
         initBaseVariables()
 
-        if (oldFile) {
-            parseOldFile()
-        } else {
-            parseNewFile()
+        for (sheet in wb.allNames) {
+            val name = sheet.sheetName
+            if (name != "" && name.length > 2) {
+                listNamesSheets.add(name)
+                print("[${sheet.sheetName}] ")
+            }
         }
+
+        println("COUNT: ${wb.numberOfSheets}")
+
 
         val sheet = wb.getSheetAt(0)
         cursorSheet(sheet)
         file.close()
     }
 
-    private fun parseOldFile() {}
-
-    private fun parseNewFile() {}
-
-    private fun cursorSheet(sheet: Sheet) {
+    private fun cursorSheet(sheet: Sheet): MutableMap<String, Group>{
         listGroups = checker.checkAllGroups(sheet)
         countColumn = checker.checkAllColumnGroups(sheet)
-        var nextGroup = 0
 
-        for (i in 0..countColumn) {
-            cursorGroups(sheet, nextGroup)
-            nextGroup += 5
+        var startPositionGroup = 2 // Start Group
+        var assembler = Assembler()
+        // Iterator Groups
+        for (i in 0 until countColumn) {
+            val cursor = Cursor(sheet, assembler)
+            cursor.selectGroup(startPositionGroup)
+            startPositionGroup += 6
+            assembler = cursor.getAssembler()
         }
-    }
-
-    private fun cursorGroups(sheet: Sheet, nextGroup: Int) {
-        val last = 242
-        for (i in 0..last) {
-            for (x in nextGroup..nextGroup + 5) {
-                val cell = sheet.getRow(i).getCell(x)
-                exportCell(cell)
-                debugger.printConsoleAll(cell)
-            }
-        }
-    }
-
-    private fun exportCell(cell: Cell?) {
-        if (cell?.cellType == CellType.STRING || cell?.cellType == CellType.NUMERIC) {
-            distributor.freshData(cell, listGroups)
-        }
+        return assembler.getListGroups()
     }
 }
 
