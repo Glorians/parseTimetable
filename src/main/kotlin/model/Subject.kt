@@ -2,8 +2,8 @@ package model
 
 class Subject (val name: String) {
     private var position: Int = 0
-    private var classroom: Int = 0
-    private lateinit var teacher: String
+    private var classroom: Int? = null
+    private var teacher: String? = null
 
     fun setPosition(position: Int) {
         this.position = position
@@ -15,5 +15,17 @@ class Subject (val name: String) {
 
     fun setTeacher(teacher: String) {
         this.teacher = teacher
+    }
+
+    fun getPosition(): Int {
+        return position
+    }
+
+    fun getClassroom(): Int? {
+        return classroom
+    }
+
+    fun getTeacher(): String? {
+        return teacher
     }
 }

@@ -1,12 +1,14 @@
+import model.Subject
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.usermodel.Sheet
 import utils.Checker
 import utils.MyColor
+import utils.getMapNamesDays
 
 class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
 
-    private val countDay = 5
+    private val countDay = 6
     private var nameGroup: String? = null
     private var startPositionGroup = 0 // Horizontal
     private var endPositionGroup = 0 // Horizontal
@@ -14,20 +16,10 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
     private var endPositionSubject = 7 // Vertical
 
     private val positionNameGroup = 0 // Horizontal
-    private val endTableVertical = 242 // Vertical 5 DAY
     private val sizeGroup = 3 // Horizontal
     private val sizeDay = 8 // Vertical
     private val sizeSubject = 5 // Vertical
-    private val listNameDay = mutableMapOf<Int, String>(
-        1 to "Понелілок",
-        2 to "Вівторок",
-        3 to "Середа",
-        4 to "Четверг",
-        5 to "Пятниця",
-        6 to "Субота"
-    )
-
-    private val checker = Checker()
+    private val mapNamesDays = getMapNamesDays()
 
     // Determines the type of subject
     private fun scanSubject(): Analyzer {
@@ -46,17 +38,17 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
                 arrayCells.add(cell)
             }
             startVerticalSubject++
-
         }
         return Analyzer(arrayCells)
     }
 
-    private fun selectSubject(numSubject: Int) {
+    private fun selectSubject(numSubject: Int, numDay: Int) {
 
         val analyzer = scanSubject() // the object stores information about the subject
 
         // If the most common subject, without subgroups and prime weeks
         fun defaultWork() {
+            val listValue = arrayListOf<Any>()
             //Run along the line subject VERTICAL
             for (lineSubject in startPositionSubject..endPositionSubject) {
                 //Run along the column subject Horizontal
@@ -64,16 +56,20 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
                     // Printing values
                     val value = getValueCell(lineSubject, width)
                     if (value != null) {
-                        println("$value ")
+                        listValue.add(value)
                     }
                 }
                 startPositionSubject++
             }
+            assembler.statusDefault()
+            assembler.createSubject(listValue)
+            listValue.clear()
             endPositionSubject = startPositionSubject + sizeSubject // End position of the next subject
         }
 
         // If the subject has subgroups
         fun subgroupWork() {
+            val listValue = arrayListOf<Any>()
             var startHorizontalSubject = startPositionGroup // Horizontal
             var endHorizontalSubject = endPositionGroup - 2 // Horizontal
             var countLineSubject = 0 // Counter
@@ -81,6 +77,11 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
 
             // Go through two subgroups
             for (column in 1..2) {
+
+                when (column) {
+                    1 -> assembler.currentSubgroup = "А"
+                    2 -> assembler.currentSubgroup = "Б"
+                }
 
                 // Printing
                 if (column == 2) {
@@ -92,7 +93,7 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
                     for (width in startHorizontalSubject..endHorizontalSubject) {
                         val value = getValueCell(lineSubject, width)
                         if (value != null) {
-                            println(value)
+                            listValue.add(value)
                         }
                     }
                     countLineSubject++
@@ -101,6 +102,8 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
                 startHorizontalSubject += sizeSubgroup
                 endHorizontalSubject += sizeSubgroup
             }
+            assembler.statusSubgroups()
+            assembler.createSubject(listValue)
             // Transition to the next subject
             startPositionSubject += countLineSubject / 2
             endPositionSubject = startPositionSubject + sizeSubject
@@ -113,6 +116,8 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
 
             // We go along parity weeks
             for (parity in 1..2) {
+                val listValue = arrayListOf<Any>()
+                assembler.currentWeek = parity
                 // Run along the line subject VERTICAL
                 for (lineSubject in startVerticalSubject..endVerticalSubject) {
                     //Run along the column subject Horizontal
@@ -120,25 +125,24 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
                         // Printing values
                         val value = getValueCell(lineSubject, width)
                         if (value != null) {
-                            println("$value ")
+                            listValue.add(value)
                         }
                     }
                     startPositionSubject++
                 }
-                // Printing border
-                if (parity == 1) {
-                    println("_____________")
-                }
+                assembler.createSubject(listValue)
                 // Next week
                 startVerticalSubject = endVerticalSubject + 1
                 endVerticalSubject += 3
             }
+            assembler.statusParityWeek()
+
             endPositionSubject = startPositionSubject + sizeSubject // End position next subject
         }
 
         // If the subject has both subgroups and parity weeks
         fun subgroupWorkWithParityWeek() {
-
+            val listValue = arrayListOf<Any>()
             // Data for subgroup
             var startHorizontalSubject = startPositionGroup // Horizontal
             var endHorizontalSubject = endPositionGroup - 2 // Horizontal
@@ -148,9 +152,9 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
             // Go through two subgroups
             for (column in 1..2) {
 
-                // Printing
-                if (column == 2) {
-                    println("|")
+                when (column) {
+                    1 -> assembler.currentSubgroup = "А"
+                    2 -> assembler.currentSubgroup = "Б"
                 }
 
                 // Data for parity weeks
@@ -159,6 +163,7 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
 
                 // Inside the subgroup, walk along parity weeks
                 for (parity in 1..2) {
+                    assembler.currentWeek = parity
                     // Run along the line subject VERTICAL
                     for (lineSubject in startVerticalSubject..endVerticalSubject) {
                         //Run along the column subject Horizontal
@@ -166,14 +171,10 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
                             // Printing values
                             val value = getValueCell(lineSubject, width)
                             if (value != null) {
-                                println(value)
+                                listValue.add(value)
                             }
                         }
                         countLineSubject++
-                    }
-                    // Printing border
-                    if (parity == 1) {
-                        println("\n_____________")
                     }
 
                     // Next week
@@ -184,6 +185,8 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
                 startHorizontalSubject += sizeSubgroup
                 endHorizontalSubject += sizeSubgroup
             }
+            assembler.statusParityAndSubgroup()
+            assembler.createSubject(listValue)
             // Next subject
             startPositionSubject += countLineSubject / 2
             endPositionSubject = startPositionSubject + sizeSubject
@@ -192,19 +195,23 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
         when {
             // If there is a subgroups & parity weeks
             analyzer.checkSubgroupsWithParityWeek() -> {
+                assembler.statusParityAndSubgroup()
                 subgroupWorkWithParityWeek()
             }
 
             // If there is a subgroups
             analyzer.checkSubgroups() -> {
+                assembler.statusSubgroups()
                 subgroupWork()
             }
 
             // If there is a parity weeks
             analyzer.checkParityWeek() -> {
+                assembler.statusParityWeek()
                 defaultWorkWithParityWeek()
             }
             else -> {
+                assembler.statusDefault()
                 defaultWork()
             }
         }
@@ -212,8 +219,9 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
 
     private fun selectDay(numDay: Int) {
         for (numSubject in 1..sizeDay) {
-            println("${MyColor.ANSI_PURPLE}Пара #$numSubject ${MyColor.ANSI_RESET}")
-            selectSubject(numSubject) // SELECT SUBJECT
+            assembler.currentPositionSubject = numSubject
+            assembler.clearStatus()
+            selectSubject(numSubject, numDay) // SELECT SUBJECT
         }
     }
 
@@ -223,16 +231,15 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
         endPositionGroup = startPositionGroup + sizeGroup
 
         nameGroup = getNameGroup(startPositionGroup)
-        println(MyColor.ANSI_GREEN + "Группа $nameGroup" + MyColor.ANSI_RESET)
 
         // Start process
         if (nameGroup != null) {
             assembler.createGroup(nameGroup!!)
             for (numDay in 1.. countDay) {
-                assembler.createDay(listNameDay[numDay]!!)
-                println(MyColor.ANSI_BLUE + listNameDay[numDay] + MyColor.ANSI_RESET)
+                assembler.currentNameDay = mapNamesDays[numDay]!!
                 selectDay(numDay) // SELECT DAY
             }
+            assembler.printingGroup()
         }
     }
 
@@ -257,5 +264,6 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
     fun getAssembler(): Assembler {
         return assembler
     }
+
 
 }

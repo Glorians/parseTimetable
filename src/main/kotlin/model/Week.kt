@@ -1,10 +1,10 @@
 package model
 
 data class Week(val parity: Int) {
-    private val listDays = arrayListOf<Day>()
+    var listDays = mutableMapOf<String, Day>()
 
-    fun addDay(day: Day) {
-        listDays.add(day)
+    fun addDays(listDays: MutableMap<String, Day>) {
+        this.listDays = listDays
     }
 
 }

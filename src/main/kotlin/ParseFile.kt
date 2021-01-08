@@ -50,17 +50,20 @@ class ParseFile(private var nameFile: String) {
     private fun cursorSheet(sheet: Sheet): MutableMap<String, Group>{
         listGroups = checker.checkAllGroups(sheet)
         countColumn = checker.checkAllColumnGroups(sheet)
-
+        val mapGroups = mutableMapOf<String, Group>()
         var startPositionGroup = 2 // Start Group
-        var assembler = Assembler()
+
         // Iterator Groups
         for (i in 0 until countColumn) {
+            var assembler = Assembler()
             val cursor = Cursor(sheet, assembler)
             cursor.selectGroup(startPositionGroup)
             startPositionGroup += 6
             assembler = cursor.getAssembler()
+            val nameGroup = assembler.group.nameGroup
+            mapGroups[nameGroup] = assembler.group
         }
-        return assembler.getListGroups()
+        return mapGroups
     }
 }
 
