@@ -1,4 +1,5 @@
 import model.*
+import utils.Checker
 import utils.MyColor
 import utils.getListNamesDays
 import utils.getListNamesSubgroups
@@ -18,6 +19,8 @@ class Assembler {
     private var nameGroup = ""
     private val listSubgroupName = getListNamesSubgroups()
     private val sizeDay = 8
+
+    private val checker = Checker()
 
     fun createGroup(name: String){
         group = Group(name, generateSubgroup())
@@ -47,7 +50,7 @@ class Assembler {
                 }
             }
 
-            if (nameSubject is String) {
+            if (nameSubject is String && !checker.checkVoidSubjectName(nameSubject)) {
                 val subject = Subject(nameSubject)
                 if (teacher is String) {
                     subject.setTeacher(teacher)

@@ -1,5 +1,7 @@
 package utils
 
+import model.Group
+
 fun getListNamesDays(): ArrayList<String> {
     return arrayListOf(
         "Понеділок",
@@ -24,4 +26,17 @@ fun getMapNamesDays(): Map<Int, String> {
 
 fun getListNamesSubgroups(): ArrayList<String> {
     return arrayListOf("А", "Б")
+}
+
+fun fixDoubleGroup(group: Group): ArrayList<Group> {
+    val nameGroup = group.nameGroup
+    val checker = Checker()
+    val listGroup = arrayListOf<Group>()
+
+    val listNameGroup = nameGroup.split(" ")
+    group.rename(listNameGroup[0])
+    val group2 = group.cloneGroup(listNameGroup[1])
+    listGroup.add(group)
+    listGroup.add(group2)
+    return listGroup
 }

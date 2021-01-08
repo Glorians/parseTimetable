@@ -104,7 +104,7 @@ open class Checker {
         return emptyList()
     }
 
-    private fun checkDoubleGroup(str: String): Boolean {
+    fun checkDoubleGroup(str: String): Boolean {
         val arrayGroup = str.split(" ")
         return arrayGroup.size == 2
     }
@@ -113,17 +113,11 @@ open class Checker {
         return cell.cellStyle.borderBottom == BorderStyle.MEDIUM_DASHED
     }
 
-    fun checkMergedCell(sheet: Sheet, row: Int, column: Int): Int? {
-        val numberOfMergedRegions = sheet.numMergedRegions
-
-        for (i in 0..numberOfMergedRegions) {
-            val mergedCell = sheet.getMergedRegion(i)
-
-            if (mergedCell.isInRange(row, column)) {
-                return i
-            }
+    fun checkVoidSubjectName(str: String):Boolean {
+        if (str == "-") {
+            return true
         }
-        return null
+        return false
     }
 
 }
