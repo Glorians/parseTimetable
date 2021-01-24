@@ -1,63 +1,58 @@
 import model.*
 import utils.MyColor
 
-class Reader(mapFaculty: Map<String, Faculty>) {
+class Reader(listFaculty: List<Faculty>) {
 
     init {
-        for ((nameFaculty, faculty) in mapFaculty) {
-            println(MyColor.ANSI_BLUE + "Факультет: $nameFaculty" + MyColor.ANSI_RESET)
-            readFaculty(nameFaculty, faculty)
+        for (faculty in listFaculty) {
+            println(MyColor.ANSI_BLUE + "Факультет: ${faculty.name}" + MyColor.ANSI_RESET)
+            readFaculty(faculty.name, faculty)
         }
     }
 
     private fun readFaculty(nameFaculty: String, faculty: Faculty) {
-        val mapGroups = faculty.getMapGroups()
-        for ((nameGroup, group) in mapGroups) {
-            println(MyColor.ANSI_GREEN + "Группа: $nameGroup" + MyColor.ANSI_RESET)
-            readGroup(nameGroup, group)
+        for (group in faculty.getListGroups()) {
+            println(MyColor.ANSI_GREEN + "Группа: ${group.name}" + MyColor.ANSI_RESET)
+            readGroup(group.name, group)
         }
     }
 
     private fun readGroup(nameGroup: String, group: Group) {
-        val mapSubgroups = group.subgroups
-        for ((nameSubgroup, subgroup) in mapSubgroups) {
-            println(MyColor.ANSI_GREEN + "Підгруппа: $nameSubgroup" + MyColor.ANSI_RESET)
-            readSubgroup(nameSubgroup, subgroup)
+        for (subgroup in group.subgroup) {
+            println(MyColor.ANSI_GREEN + "Підгруппа: ${subgroup.name}" + MyColor.ANSI_RESET)
+            readSubgroup(subgroup.name, subgroup)
         }
     }
 
     private fun readSubgroup(nameSubgroup: String, subgroup: Subgroup) {
-        val mapWeeks = subgroup.listWeeks
-        for ((parity, week) in mapWeeks) {
+        for (week in subgroup.listWeek) {
             print(MyColor.ANSI_CYAN)
-            if (parity == 1) {
+            if (week.parity == 1) {
                 println("Верхня неділя")
             }
-            if (parity == 2) {
+            if (week.parity == 2) {
                 println("Нижня неділя")
             }
             print(MyColor.ANSI_RESET)
-            readWeek(parity, week)
+            readWeek(week.parity, week)
         }
     }
 
     private fun readWeek(parity: Int, week: Week) {
-        val mapDays = week.listDays
-        for ((nameDay, day) in mapDays) {
-            println(MyColor.ANSI_YELLOW + "День: $nameDay" + MyColor.ANSI_RESET)
-            readDay(nameDay, day)
+        for (day in week.listDay) {
+            println(MyColor.ANSI_YELLOW + "День: ${day.name}" + MyColor.ANSI_RESET)
+            readDay(day.name, day)
         }
     }
 
     private fun readDay(nameDay: String, day: Day) {
-        val mapSubject = day.listSubject
-        for ((numSubject, subject) in mapSubject) {
-            println(MyColor.ANSI_PURPLE + "Пара #$numSubject" + MyColor.ANSI_RESET)
-            readSubject(numSubject, subject)
+        for (subject in day.listSubject) {
+            println(MyColor.ANSI_PURPLE + "Пара #${subject.getPosition()}" + MyColor.ANSI_RESET)
+            readSubject(subject)
         }
     }
 
-    private fun readSubject(numSubject: Int, subject: Subject) {
+    private fun readSubject(subject: Subject) {
         val name = subject.name
         val teacher = subject.getTeacher()
         val classroom = subject.getClassroom()

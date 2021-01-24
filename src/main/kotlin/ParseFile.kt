@@ -16,7 +16,7 @@ class ParseFile(private var nameFile: String) {
     private var countSheet = 0
     private var countColumn = 0
     private lateinit var listGroups: MutableList<String>
-    private lateinit var mapFaculty: MutableMap<String, Faculty>
+    private lateinit var listFaculty: MutableList<Faculty>
     private lateinit var listNamesSheets: MutableList<String>
 
 
@@ -27,10 +27,10 @@ class ParseFile(private var nameFile: String) {
         wb = WorkbookFactory.create(file)
         countSheet = wb.numberOfSheets
         listNamesSheets = mutableListOf()
-        mapFaculty = mutableMapOf()
+        listFaculty = mutableListOf()
     }
 
-    fun parse(): Map<String, Faculty> {
+    fun parse(): List<Faculty> {
         initBaseVariables()
 
         for (sheet in wb.allNames) {
@@ -45,16 +45,16 @@ class ParseFile(private var nameFile: String) {
             val faculty = Faculty(nameSheet)
             val sheet = wb.getSheetAt(sheetNum)
             faculty.addMapGroups(cursorSheet(sheet))
-            mapFaculty[nameSheet] = faculty
+            listFaculty.add(faculty)
         }
         file.close()
-        return mapFaculty
+        return listFaculty
     }
 
-    private fun cursorSheet(sheet: Sheet): MutableMap<String, Group>{
+    private fun cursorSheet(sheet: Sheet): MutableList<Group>{
         listGroups = checker.checkAllGroups(sheet)
         countColumn = checker.checkAllColumnGroups(sheet)
-        val mapGroups = mutableMapOf<String, Group>()
+        val listGroups = mutableListOf<Group>()
         var startPositionGroup = 2 // Start Group
 
         // Iterator Groups
@@ -64,17 +64,17 @@ class ParseFile(private var nameFile: String) {
             cursor.selectGroup(startPositionGroup)
             startPositionGroup += 6
             assembler = cursor.getAssembler()
-            val nameGroup = assembler.group.nameGroup
+            val nameGroup = assembler.group.name
             val group = assembler.group
-            if (checker.checkDoubleGroup(group.nameGroup)) {
+            if (checker.checkDoubleGroup(group.name)) {
                 val listGroup = fixDoubleGroup(group)
                 for (groupNotDouble in listGroup) {
-                    mapGroups[group.nameGroup] = groupNotDouble
+                    listGroups.add(groupNotDouble)
                 }
             }
-            else mapGroups[group.nameGroup] = group
+            else listGroups.add(group)
         }
-        return mapGroups
+        return listGroups
     }
 
 

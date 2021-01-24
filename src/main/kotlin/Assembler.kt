@@ -1,6 +1,5 @@
 import model.*
 import utils.Checker
-import utils.MyColor
 import utils.getListNamesDays
 import utils.getListNamesSubgroups
 
@@ -71,89 +70,69 @@ class Assembler {
                 for (nameSubgroup in listSubgroupName) {
                     for (parity in 1..2) {
                         val day = getDay(nameSubgroup, parity)
-                        day.addSubject(currentPositionSubject, subject)
+                        day.addSubject(subject)
                     }
                 }
             }
             statusSubgroups -> {
                 for (parity in 1..2) {
                     val day = getDay(currentSubgroup, parity)
-                    day.addSubject(currentPositionSubject, subject)
+                    day.addSubject(subject)
                 }
             }
             statusParityWeek -> {
                 for (nameSubgroup in listSubgroupName) {
                     val day = getDay(nameSubgroup, currentWeek)
-                    day.addSubject(currentPositionSubject, subject)
+                    day.addSubject(subject)
                 }
             }
             statusParityAndSubgroup -> {
                 val day = getDay(currentSubgroup, currentWeek)
-                day.addSubject(currentPositionSubject, subject)
+                day.addSubject(subject)
             }
         }
     }
 
-    fun printingGroup() {
-        println(MyColor.ANSI_GREEN+"Группа ${group.nameGroup}"+MyColor.ANSI_RESET)
-        for (nameSubgroup in listSubgroupName) {
-            val subgroup = group.subgroups[nameSubgroup]
-            for (parity in 1..2) {
-                print(MyColor.ANSI_PURPLE)
-                println("Підгруппа: ${subgroup!!.nameSubgroup}")
-                println("Тиждень: $parity")
-                print(MyColor.ANSI_RESET)
-                for (nameDay in getListNamesDays()) {
-                    println(MyColor.ANSI_YELLOW+ nameDay +MyColor.ANSI_RESET)
-                    val day = subgroup.listWeeks[parity]!!.listDays
-                    for(subjectNum in 1..sizeDay) {
-                        val subject = day[nameDay]!!.listSubject[subjectNum]
-                        if (subject?.name != null) {
-                            println("Пара #${subject.getPosition()} " +
-                                    "Назва: ${subject.name} " +
-                                    "Вчитель: ${subject.getTeacher()} " +
-                                    "Кабінет: ${subject.getClassroom()}")
-                        }
-
-                    }
-
-                }
-
-            }
-        }
-    }
-
-    private fun generateSubgroup(): MutableMap<String, Subgroup> {
+    private fun generateSubgroup(): MutableList<Subgroup> {
         val subgroupA = Subgroup("А")
         val subgroupB = Subgroup("Б")
         subgroupA.addWeeksList(generateWeeks())
         subgroupB.addWeeksList(generateWeeks())
-
-        return mutableMapOf(
-            "А" to subgroupA,
-            "Б" to subgroupB
-        )
+        return mutableListOf(subgroupA, subgroupB)
     }
 
-    private fun generateWeeks(): MutableMap<Int, Week> {
+    private fun generateWeeks(): MutableList<Week> {
         val week1 = Week(1)
         val week2 = Week(2)
         week1.addDays(generateDays())
         week2.addDays(generateDays())
-        return mutableMapOf(1 to week1, 2 to week2)
+        return mutableListOf(week1, week2)
     }
 
-    private fun generateDays(): MutableMap<String,Day> {
+    private fun generateDays(): MutableList<Day> {
         val listNamesDays = getListNamesDays()
-        val listDays = mutableMapOf<String, Day>()
+        val listDays = mutableListOf<Day>()
         for (nameDay in listNamesDays) {
-            listDays[nameDay] = Day(nameDay)
+            listDays.add(Day(nameDay))
         }
         return listDays
     }
 
     private fun getDay(nameSubgroup: String, parityWeek: Int): Day {
-        return group.subgroups[nameSubgroup]!!.listWeeks[parityWeek]!!.listDays[currentNameDay]!!
+        for (subgroup in group.subgroup) {
+            if (subgroup.name == nameSubgroup) {
+                for (week in subgroup.listWeek) {
+                    if (week.parity == parityWeek) {
+                        for (day in week.listDay) {
+                            if (day.name == currentNameDay) {
+                                return day
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return Day("")
     }
 
     fun clearStatus() {

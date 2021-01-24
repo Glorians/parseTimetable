@@ -1,9 +1,9 @@
 package model
 
-data class Day(val nameDay: String) {
-    val listSubject = mutableMapOf<Int,Subject>()
+data class Day(val name: String) {
+    val listSubject = mutableListOf<Subject>()
 
-    fun addSubject(numSubject: Int,subject: Subject) {
-        listSubject[numSubject] = subject
+    fun addSubject(subject: Subject) {
+        listSubject.add(subject)
     }
 }

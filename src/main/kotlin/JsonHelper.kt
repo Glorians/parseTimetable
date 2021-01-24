@@ -6,7 +6,7 @@ import java.io.File
 
 class JsonHelper {
 
-    fun toJsonFaculty(mapFaculty: Map<String, Faculty>) {
+    fun toJsonFaculty(mapFaculty: List<Faculty>) {
 
         val gson = Gson()
         val gsonPretty = GsonBuilder().setPrettyPrinting().create()

@@ -1,9 +1,9 @@
 package model
 
-data class Subgroup (val nameSubgroup: String) {
-    var listWeeks = mutableMapOf<Int,Week>()
+data class Subgroup (val name: String) {
+    var listWeek = mutableListOf<Week>()
 
-    fun addWeeksList(listWeeks: MutableMap<Int, Week>) {
-        this.listWeeks = listWeeks
+    fun addWeeksList(listWeeks: MutableList<Week>) {
+        this.listWeek = listWeeks
     }
 }

@@ -1,13 +1,13 @@
 package model
 
 data class Faculty(val name: String) {
-    private lateinit var mapGroups: MutableMap<String, Group>
+    private lateinit var listGroup: MutableList<Group>
 
-    fun addMapGroups(mapGroups: MutableMap<String, Group>) {
-        this.mapGroups = mapGroups
+    fun addMapGroups(listGroups: MutableList<Group>) {
+        this.listGroup = listGroups
     }
 
-    fun getMapGroups(): Map<String, Group> {
-        return mapGroups
+    fun getListGroups(): List<Group> {
+        return listGroup
     }
 }

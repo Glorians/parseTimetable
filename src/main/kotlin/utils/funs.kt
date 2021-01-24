@@ -29,7 +29,7 @@ fun getListNamesSubgroups(): ArrayList<String> {
 }
 
 fun fixDoubleGroup(group: Group): ArrayList<Group> {
-    val nameGroup = group.nameGroup
+    val nameGroup = group.name
     val checker = Checker()
     val listGroup = arrayListOf<Group>()
 
