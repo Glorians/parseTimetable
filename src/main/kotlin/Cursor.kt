@@ -76,8 +76,8 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
             for (column in 1..2) {
                 val listValue = arrayListOf<Any>()
                 when (column) {
-                    1 -> assembler.currentSubgroup = "А"
-                    2 -> assembler.currentSubgroup = "Б"
+                    1 -> assembler.currentSubgroup = "A"
+                    2 -> assembler.currentSubgroup = "B"
                 }
 
                 // Run along the line subject VERTICAL
@@ -139,8 +139,8 @@ class Cursor(private val sheet: Sheet, private val assembler: Assembler) {
             for (column in 1..2) {
 
                 when (column) {
-                    1 -> assembler.currentSubgroup = "А"
-                    2 -> assembler.currentSubgroup = "Б"
+                    1 -> assembler.currentSubgroup = "A"
+                    2 -> assembler.currentSubgroup = "B"
                 }
 
                 // Data for parity weeks

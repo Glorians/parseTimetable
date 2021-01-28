@@ -4,12 +4,12 @@ import model.Group
 
 fun getListNamesDays(): ArrayList<String> {
     return arrayListOf(
-        "Понеділок",
-        "Вівторок",
-        "Середа",
-        "Четверг",
-        "Пятниця",
-        "Субота",
+        "понеділок",
+        "вівторок",
+        "середа",
+        "четверг",
+        "пятниця",
+        "субота",
     )
 }
 
@@ -25,7 +25,7 @@ fun getMapNamesDays(): Map<Int, String> {
 }
 
 fun getListNamesSubgroups(): ArrayList<String> {
-    return arrayListOf("А", "Б")
+    return arrayListOf("A", "B")
 }
 
 fun fixDoubleGroup(group: Group): ArrayList<Group> {

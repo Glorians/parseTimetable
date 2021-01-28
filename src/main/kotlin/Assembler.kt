@@ -94,8 +94,8 @@ class Assembler {
     }
 
     private fun generateSubgroup(): MutableList<Subgroup> {
-        val subgroupA = Subgroup("А")
-        val subgroupB = Subgroup("Б")
+        val subgroupA = Subgroup("A")
+        val subgroupB = Subgroup("B")
         subgroupA.addWeeksList(generateWeeks())
         subgroupB.addWeeksList(generateWeeks())
         return mutableListOf(subgroupA, subgroupB)
@@ -119,7 +119,7 @@ class Assembler {
     }
 
     private fun getDay(nameSubgroup: String, parityWeek: Int): Day {
-        for (subgroup in group.subgroup) {
+        for (subgroup in group.listSubgroup) {
             if (subgroup.name == nameSubgroup) {
                 for (week in subgroup.listWeek) {
                     if (week.parity == parityWeek) {

@@ -1,9 +1,9 @@
 package model
 
-data class Group (var name: String, val subgroup: MutableList<Subgroup>) {
+data class Group (var name: String, val listSubgroup: MutableList<Subgroup>) {
 
     fun cloneGroup(nameGroup: String): Group {
-        return Group(nameGroup, subgroup)
+        return Group(nameGroup, listSubgroup)
     }
 
     fun rename(nameGroup: String) {

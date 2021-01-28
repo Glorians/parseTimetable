@@ -18,7 +18,7 @@ class Reader(listFaculty: List<Faculty>) {
     }
 
     private fun readGroup(nameGroup: String, group: Group) {
-        for (subgroup in group.subgroup) {
+        for (subgroup in group.listSubgroup) {
             println(MyColor.ANSI_GREEN + "Підгруппа: ${subgroup.name}" + MyColor.ANSI_RESET)
             readSubgroup(subgroup.name, subgroup)
         }
